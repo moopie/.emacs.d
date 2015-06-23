@@ -1,0 +1,9 @@
+# folders
+elpa/*
+backups/*
+auto-save-list/*
+
+# files
+ido.last
+places
+projectile*
