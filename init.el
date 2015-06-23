@@ -15,6 +15,9 @@
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 
+(setq-default indent-tabs-mode nil)
+(setq tab-width 4)
+
 (setq inhibit-startup-message t)
 
 (set-face-attribute 'default nil :height 90)
