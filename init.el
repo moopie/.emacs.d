@@ -57,7 +57,7 @@
 
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-(setq omnisharp-server-executable-path "c:/Users/antonam/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
+(setq omnisharp-server-executable-path "~/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
 (eval-after-load 'company
   '(add-to-list 'company-backends 'company-omnisharp))
 
@@ -88,7 +88,7 @@
         backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                  "backups")))))
 (defun my-emacs-theme ()
-  (load-theme 'ample))
+  (load-theme 'sanityinc-tomorrow-night))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -145,7 +145,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("ffe39e540469ef05808ab4b75055cc81266875fa4a0d9e89c2fec1da7a6354f3" default))))
+    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
