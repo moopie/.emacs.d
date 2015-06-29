@@ -1,7 +1,6 @@
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("marmalade" . "https://marmalade-repo.org/packages")
-			 ("melpa" . "http://melpa.org/packages/")
-			 ("org" . "http://orgmode.org/elpa/")))
+			 ("melpa" . "http://melpa.org/packages/")))
 
 (if (equal system-type 'windows-nt)
     (progn (setq explicit-shell-file-name
@@ -10,6 +9,42 @@
            (setq explicit-sh.exe-args '("--login" "-i"))
            (setenv "SHELL" shell-file-name)
            (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)))
+
+(package-initialize)
+
+(setq package-list
+      '(anzu
+        buffer-move
+        color-theme-sanityinc-tomorrow
+        company
+        dired+
+        emmet-mode
+        evil
+        flycheck
+        git-commit-mode
+        git-gutter
+        git-rebase-mode
+        git-timemachine
+        helm
+        helm-ag
+        helm-company
+        helm-projectile
+        helm-swoop
+        highlight-symbol
+        js2-mode
+        magit
+        multi-eshell
+        multi-term
+        omnisharp
+        smex
+        web-mode))
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -20,7 +55,15 @@
 
 (setq inhibit-startup-message t)
 
-(set-face-attribute 'default nil :height 90)
+(setq magit-last-seen-setup-instructions "1.4.0")
+
+(setq omnisharp-server-executable-path "c:/Users/antonam/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-omnisharp))
+
+(set-face-attribute 'default nil
+                    :height 90
+                    :font (if (eq system-type 'windows-nt) "Consolas" "Inconsolata"))
 
 (progn
   (ido-mode t)
@@ -44,26 +87,65 @@
         save-place-file (concat user-emacs-directory "places")
         backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                  "backups")))))
-(defun my-zenburn-init ()
-  (load-theme 'zenburn))
+(defun my-emacs-theme ()
+  (load-theme 'ample))
+
+(defun my-hilight-symbol-hook ()
+  (global-set-key [(control f3)] 'highlight-symbol)
+  (global-set-key [f3] 'highlight-symbol-next)
+  (global-set-key [(shift f3)] 'highlight-symbol-prev)
+  (global-set-key [(meta f3)] 'highlight-symbol-query-replace))
+
+(defun my-anzu-mode ()
+  (global-set-key (kbd "M-%") 'anzu-query-replace)
+  (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp))
+
+(defun my-buffer-move ()
+  (global-set-key (kbd "<C-S-up>")     'buf-move-up)
+  (global-set-key (kbd "<C-S-down>")   'buf-move-down)
+  (global-set-key (kbd "<C-S-left>")   'buf-move-left)
+  (global-set-key (kbd "<C-S-right>")  'buf-move-right))
+
+(defun my-wind-move ()
+  (windmove-default-keybindings))
+
+(defun my-smex-mode ()
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  ;; This is your old M-x.
+  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
+
+(defun my-after-init-hook ()
+  (my-emacs-theme)
+  (projectile-global-mode)
+  (global-company-mode)
+  (global-flycheck-mode)
+  (my-hilight-symbol-hook)
+  (my-anzu-mode)
+  (my-buffer-move)
+  (my-wind-move)
+  (my-smex-mode)
+  (winner-mode 1)
+  (eldoc-mode))
 
 (setq projectile-require-project-root nil
       projectile-enable-caching t)
 
-(add-hook 'after-init-hook 'my-zenburn-init)
-(add-hook 'after-init-hook 'projectile-global-mode)
-(add-hook 'after-init-hook 'global-company-mode)
-(add-hook 'csharp-mode-hook 'omnisharp-mode)
+(defun my-csharp-hooks ()
+  (omnisharp-mode))
+
+(add-hook 'after-init-hook '(lambda () (require 'dired+)))
+(add-hook 'after-init-hook 'my-after-init-hook)
+(add-hook 'csharp-mode-hook 'my-csharp-hooks)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (zenburn)))
  '(custom-safe-themes
    (quote
-    ("3dafeadb813a33031848dfebfa0928e37e7a3c18efefa10f3e9f48d1993598d3" default))))
+    ("ffe39e540469ef05808ab4b75055cc81266875fa4a0d9e89c2fec1da7a6354f3" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -2,8 +2,12 @@
 elpa/*
 backups/*
 auto-save-list/*
+eshell/*
+server/*
 
 # files
 ido.last
 places
 projectile*
+recentf
+smex-items
