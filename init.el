@@ -20,6 +20,7 @@
         dired+
         emmet-mode
         evil
+        powerline-evil
         neotree
         flycheck
         git-gutter
@@ -59,10 +60,10 @@
 (setq omnisharp-server-executable-path "~/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
 (eval-after-load 'company
   '(add-to-list 'company-backends 'company-omnisharp))
-
-(set-face-attribute 'default nil
-                    :height 90
-                    :font (if (eq system-type 'windows-nt) "Consolas" "Inconsolata"))
+(if (display-graphic-p)
+    (set-face-attribute 'default nil
+                    :height (if (eq system-type 'windows-nt) 90 120)
+                    :font (if (eq system-type 'windows-nt) "Consolas" "Inconsolata")))
 
 (progn
   (ido-mode t)
@@ -128,6 +129,7 @@
   (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+  (require 'powerline-evil)
   (add-hook 'neotree-mode-hook
             (lambda ()
                 (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
@@ -201,3 +203,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+(require 'server)
+(unless (server-running-p) (server-start))
