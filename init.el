@@ -20,10 +20,9 @@
         dired+
         emmet-mode
         evil
+        neotree
         flycheck
-        git-commit-mode
         git-gutter
-        git-rebase-mode
         git-timemachine
         helm
         helm-ag
@@ -101,19 +100,69 @@
   (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp))
 
 (defun my-buffer-move ()
+  (windmove-default-keybindings)
   (global-set-key (kbd "<C-S-up>")     'buf-move-up)
   (global-set-key (kbd "<C-S-down>")   'buf-move-down)
   (global-set-key (kbd "<C-S-left>")   'buf-move-left)
-  (global-set-key (kbd "<C-S-right>")  'buf-move-right))
-
-(defun my-wind-move ()
-  (windmove-default-keybindings))
+  (global-set-key (kbd "<C-S-right>")  'buf-move-right)
+  (global-set-key (kbd "C-<left>")   'shrink-window-horizontally)
+  (global-set-key (kbd "C-<right>")  'enlarge-window-horizontally)
+  (global-set-key (kbd "C-<down>")   'shrink-window)
+  (global-set-key (kbd "C-<up>")     'enlarge-window))
 
 (defun my-smex-mode ()
   (global-set-key (kbd "M-x") 'smex)
   (global-set-key (kbd "M-X") 'smex-major-mode-commands)
   ;; This is your old M-x.
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
+
+(defun my-mx-helm ()
+  (global-set-key (kbd "M-x") 'helm-M-x))
+
+(defun my-evil-conf ()
+  (evil-mode 1)
+  (define-key evil-normal-state-map [escape] 'keyboard-quit)
+  (define-key evil-visual-state-map [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+  (add-hook 'neotree-mode-hook
+            (lambda ()
+                (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+                (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter))))
+
+
+(setq weechat-modules '(weechat-button
+                        weechat-complete
+                        weechat-tracking))
+
+(eval-after-load 'weechat
+  '(progn
+     (setq weechat-color-list
+           '(unspecified "black" "dark gray" "dark red" "red"
+                         "dark green" "light green" "brown"
+                         "yellow" "RoyalBlue3"
+                         "light blue"
+                         "dark magenta" "magenta" "dark cyan"
+                         "light cyan" "gray" "white")
+           weechat-prompt "> "
+           weechat-auto-monitor-buffers t
+           weechat-complete-nick-ignore-self nil
+           weechat-button-buttonize-nicks nil
+           weechat-sync-active-buffer t)
+     
+     (load (expand-file-name "weechat-conf.el" user-emacs-directory))
+     (require 'gnutls)
+     (add-to-list 'gnutls-trustfiles (expand-file-name (concat user-emacs-directory "/relay.cert")))
+     (set-face-background 'weechat-highlight-face "dark red")
+     (set-face-foreground 'weechat-highlight-face "light grey")
+
+     (tracking-mode)))
+  
 
 (defun my-after-init-hook ()
   (my-emacs-theme)
@@ -123,10 +172,10 @@
   (my-hilight-symbol-hook)
   (my-anzu-mode)
   (my-buffer-move)
-  (my-wind-move)
   (my-smex-mode)
   (winner-mode 1)
-  (eldoc-mode))
+  (eldoc-mode)
+  (my-evil-conf))
 
 (setq projectile-require-project-root nil
       projectile-enable-caching t)
