@@ -20,8 +20,6 @@
         dired+
         emmet-mode
         evil
-        powerline-evil
-        neotree
         flycheck
         git-gutter
         git-timemachine
@@ -37,7 +35,8 @@
         multi-term
         omnisharp
         smex
-        web-mode))
+        web-mode
+	weechat))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -62,7 +61,7 @@
   '(add-to-list 'company-backends 'company-omnisharp))
 (if (display-graphic-p)
     (set-face-attribute 'default nil
-                    :height (if (eq system-type 'windows-nt) 90 120)
+                    :height (if (eq system-type 'windows-nt) 90 100)
                     :font (if (eq system-type 'windows-nt) "Consolas" "Inconsolata")))
 
 (progn
@@ -117,9 +116,6 @@
   ;; This is your old M-x.
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
 
-(defun my-mx-helm ()
-  (global-set-key (kbd "M-x") 'helm-M-x))
-
 (defun my-evil-conf ()
   (evil-mode 1)
   (define-key evil-normal-state-map [escape] 'keyboard-quit)
@@ -129,7 +125,6 @@
   (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-  (require 'powerline-evil)
   (add-hook 'neotree-mode-hook
             (lambda ()
                 (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
