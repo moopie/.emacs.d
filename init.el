@@ -13,13 +13,15 @@
 (package-initialize)
 
 (setq package-list
-      '(anzu
+      '(boron-theme
+        anzu
         buffer-move
-        color-theme-sanityinc-tomorrow
         company
+        company-web
         dired+
         emmet-mode
         evil
+        evil-leader
         flycheck
         git-gutter
         git-timemachine
@@ -29,14 +31,15 @@
         helm-projectile
         helm-swoop
         highlight-symbol
-        js2-mode
         magit
         multi-eshell
         multi-term
         omnisharp
         smex
         web-mode
-	weechat))
+        ac-html-bootstrap
+        ac-html-csswatcher
+        weechat))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -56,7 +59,7 @@
 
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-(setq omnisharp-server-executable-path "~/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
+(setq omnisharp-server-executable-path "~/omnisharp-roslyn/scripts/Omnisharp.cmd")
 (eval-after-load 'company
   '(add-to-list 'company-backends 'company-omnisharp))
 (if (display-graphic-p)
@@ -88,7 +91,7 @@
                                                  "backups")))))
 (defun my-emacs-theme ()
   (global-hl-line-mode)
-  (load-theme 'zenburn t))
+  (load-theme 'boron t))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -153,16 +156,33 @@
            weechat-button-buttonize-nicks nil
            weechat-sync-active-buffer t)
      
-     (load (expand-file-name "weechat-conf.el" user-emacs-directory))
+     (setq weechat-conf-file (expand-file-name "weechat-conf.el" user-emacs-directory))
+     (if (file-exists-p weechat-conf-file)
+         (load weechat-conf-file))
      (require 'gnutls)
      (add-to-list 'gnutls-trustfiles (expand-file-name (concat user-emacs-directory "/relay.cert")))
      (set-face-background 'weechat-highlight-face "dark red")
      (set-face-foreground 'weechat-highlight-face "light grey")
 
      (tracking-mode)))
+
+(defun my-company-mode ()
+  (require 'company)
+  (require 'company-web-html))
+
+(defun my-web-mode ()
+  (require 'web-mode)
+  (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+
+  (setq web-mode-content-alist
+        '(("xml" . "*\\.config\\'"))))
   
 
 (defun my-after-init-hook ()
+  (my-web-mode)
+  (my-company-mode)
   (my-emacs-theme)
   (projectile-global-mode)
   (global-company-mode)
