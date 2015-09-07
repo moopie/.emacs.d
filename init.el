@@ -48,6 +48,42 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+(mapc (lambda (map)
+        (define-key input-decode-map
+          (read-kbd-macro (cadr map))
+          (read-kbd-macro (car map))))
+      '(("<backtab>"    "ESC [ Z")
+
+        ("<S-up>"       "ESC [1;2A")
+        ("<S-down>"     "ESC [1;2B")
+        ("<S-right>"    "ESC [1;2C")
+        ("<S-left>"     "ESC [1;2D")
+
+        ("<M-up>"       "ESC [1;3A")
+        ("<M-down>"     "ESC [1;3B")
+        ("<M-right>"    "ESC [1;3C")
+        ("<M-left>"     "ESC [1;3D")
+
+        ("<M-S-up>"     "ESC [1;4A")
+        ("<M-S-down>"   "ESC [1;4B")
+        ("<M-S-right>"  "ESC [1;4C")
+        ("<M-S-left>"   "ESC [1;4D")
+
+        ("<C-up>"       "ESC [1;5A")
+        ("<C-down>"     "ESC [1;5B")
+        ("<C-right>"    "ESC [1;5C")
+        ("<C-left>"     "ESC [1;5D")
+
+        ("<C-S-up>"       "ESC [1;6A")
+        ("<C-S-down>"     "ESC [1;6B")
+        ("<C-S-right>"    "ESC [1;6C")
+        ("<C-S-left>"     "ESC [1;6D")
+
+        ("<C-prior>"    "ESC [5;5~")
+        ("<C-next>"     "ESC [6;5~")
+        ("<C-delete>"   "ESC [3;5~")
+                ))
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -91,7 +127,7 @@
                                                  "backups")))))
 (defun my-emacs-theme ()
   (global-hl-line-mode)
-  (load-theme 'boron t))
+  (load-theme 'sanityinc-tomorrow-night t))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
