@@ -1,9 +1,9 @@
 # folders
-elpa/*
-backups/*
-auto-save-list/*
-eshell/*
-server/*
+elpa
+backups
+auto-save-list
+eshell
+server
 
 # files
 ido.last
@@ -11,7 +11,7 @@ places
 projectile*
 recentf
 smex-items
-/weechat-conf.el
+weechat-conf.el
 
 # editor junk
 \#*
