@@ -1,0 +1,17 @@
+(defun my-evil-conf ()
+  (evil-mode 1)
+  (define-key evil-normal-state-map [escape] 'keyboard-quit)
+  (define-key evil-visual-state-map [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+  (add-hook 'neotree-mode-hook
+            (lambda ()
+                (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+                (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter))))
+
+(add-hook 'after-init-hook 'my-evil-conf)
