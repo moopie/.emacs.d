@@ -17,9 +17,9 @@
         buffer-move
         company
         company-web
-        dired+
         emmet-mode
         color-theme
+        zenburn-theme
 
         ;; Evil
         evil
@@ -139,11 +139,12 @@
                                                  "backups")))))
 (defun my-emacs-theme ()
   (global-hl-line-mode)
-  ;;(load- 'sanityinc-tomorrow-night t)
+  ;;(load-theme 'sanityinc-tomorrow-night t)
   (require 'color-theme)
   (color-theme-initialize)
-  (require 'color-theme-less)
-  (color-theme-less))
+  (load-theme 'zenburn t))
+  ;;(require 'color-theme-less)
+  ;;(color-theme-less))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -253,7 +254,6 @@
 (defun my-csharp-hooks ()
   (omnisharp-mode))
 
-(add-hook 'after-init-hook '(lambda () (require 'dired+)))
 (add-hook 'after-init-hook 'my-after-init-hook)
 (add-hook 'csharp-mode-hook 'my-csharp-hooks)
 
