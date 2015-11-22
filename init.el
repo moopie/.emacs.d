@@ -208,11 +208,11 @@
            weechat-button-buttonize-nicks nil
            weechat-sync-active-buffer t)
      
-     (setq weechat-conf-file (expand-file-name "weechat-conf.el" user-emacs-directory))
+     (setq weechat-conf-file (expand-file-name "weechat/secrets.el" user-emacs-directory))
      (if (file-exists-p weechat-conf-file)
          (load weechat-conf-file))
      (require 'gnutls)
-     (add-to-list 'gnutls-trustfiles (expand-file-name (concat user-emacs-directory "/relay.cert")))
+     (add-to-list 'gnutls-trustfiles (expand-file-name (concat user-emacs-directory "/weechat/relay.cert")))
      (set-face-background 'weechat-highlight-face "dark red")
      (set-face-foreground 'weechat-highlight-face "light grey")
 
