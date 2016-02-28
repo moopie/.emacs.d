@@ -12,21 +12,16 @@
 (package-initialize)
 
 (setq package-list
-      '(boron-theme
-        anzu
-        buffer-move
-        company
-        company-web
-        emmet-mode
-        color-theme
-        zenburn-theme
+      '(
+        ;; themes
+        gruvbox-theme
 
         ;; Evil
         evil
         evil-leader
-        flycheck
 
         ;; Git
+        magit
         git-gutter
         git-timemachine
 
@@ -37,16 +32,27 @@
         helm-projectile
         helm-swoop
 
-        highlight-symbol
-        magit
-        multi-eshell
-        multi-term
+        ;; languages
+        company-web
+        emmet-mode
         omnisharp
-        smex
         web-mode
         ac-html-bootstrap
         ac-html-csswatcher
-        weechat))
+
+        ;; tern
+        tern
+        company-tern
+
+        ;; Utils
+        company
+        anzu
+        buffer-move
+        highlight-symbol
+        multi-term
+        flycheck
+        smex
+        ))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -92,7 +98,7 @@
         ("<C-prior>"    "ESC [5;5~")
         ("<C-next>"     "ESC [6;5~")
         ("<C-delete>"   "ESC [3;5~")
-                ))
+        ))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -107,7 +113,7 @@
 
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-(setq omnisharp-server-executable-path "~/omnisharp-roslyn/scripts/Omnisharp.cmd")
+;;(setq omnisharp-server-executable-path "~/omnisharp-roslyn/scripts/Omnisharp.cmd")
 (eval-after-load 'company
   '(add-to-list 'company-backends 'company-omnisharp))
 (if (display-graphic-p)
@@ -125,6 +131,8 @@
   (show-paren-mode 1)
   (setq-default indent-tabs-mode nil)
 
+  (global-git-gutter-mode +1)
+
   (setq x-select-enable-clipboard t
         x-select-enable-primary t
         save-interprogram-paste-before-kill t
@@ -138,13 +146,7 @@
         backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                  "backups")))))
 (defun my-emacs-theme ()
-  (global-hl-line-mode)
-  ;;(load-theme 'sanityinc-tomorrow-night t)
-  (require 'color-theme)
-  (color-theme-initialize)
-  (load-theme 'zenburn t))
-  ;;(require 'color-theme-less)
-  ;;(color-theme-less))
+  (load-theme 'gruvbox t))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -158,20 +160,28 @@
 
 (defun my-buffer-move ()
   (windmove-default-keybindings)
-  (global-set-key (kbd "<C-S-up>")     'buf-move-up)
-  (global-set-key (kbd "<C-S-down>")   'buf-move-down)
-  (global-set-key (kbd "<C-S-left>")   'buf-move-left)
-  (global-set-key (kbd "<C-S-right>")  'buf-move-right)
-  (global-set-key (kbd "C-<left>")   'shrink-window-horizontally)
-  (global-set-key (kbd "C-<right>")  'enlarge-window-horizontally)
-  (global-set-key (kbd "C-<down>")   'shrink-window)
-  (global-set-key (kbd "C-<up>")     'enlarge-window))
+  (global-set-key (kbd "<C-S-up>")    'buf-move-up)
+  (global-set-key (kbd "<C-S-down>")  'buf-move-down)
+  (global-set-key (kbd "<C-S-left>")  'buf-move-left)
+  (global-set-key (kbd "<C-S-right>") 'buf-move-right)
+  (global-set-key (kbd "C-<left>")    'shrink-window-horizontally)
+  (global-set-key (kbd "C-<right>")   'enlarge-window-horizontally)
+  (global-set-key (kbd "C-<down>")    'shrink-window)
+  (global-set-key (kbd "C-<up>")      'enlarge-window)
+  (global-set-key (kbd "C-h")         'buf-move-left)
+  (global-set-key (kbd "C-l")         'buf-move-right)
+  (global-set-key (kbd "C-j")         'buf-move-down)
+  (global-set-key (kbd "C-k")         'buf-move-up))
 
 (defun my-smex-mode ()
   (global-set-key (kbd "M-x") 'smex)
   (global-set-key (kbd "M-X") 'smex-major-mode-commands)
   ;; This is your old M-x.
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
+
+(defun my-tern-mode ()
+  (tern-mode t))
+(add-hook 'js-mode-hook 'my-tern-mode)
 
 (defun my-evil-conf ()
   (evil-mode 1)
@@ -190,35 +200,6 @@
                 (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter))))
 
 
-(setq weechat-modules '(weechat-button
-                        weechat-complete
-                        weechat-tracking))
-
-(eval-after-load 'weechat
-  '(progn
-     (setq weechat-color-list
-           '(unspecified "black" "dark gray" "dark red" "red"
-                         "dark green" "light green" "brown"
-                         "yellow" "RoyalBlue3"
-                         "light blue"
-                         "dark magenta" "magenta" "dark cyan"
-                         "light cyan" "gray" "white")
-           weechat-prompt "> "
-           weechat-auto-monitor-buffers t
-           weechat-complete-nick-ignore-self nil
-           weechat-button-buttonize-nicks nil
-           weechat-sync-active-buffer t)
-     
-     (setq weechat-conf-file (expand-file-name "weechat/secrets.el" user-emacs-directory))
-     (if (file-exists-p weechat-conf-file)
-         (load weechat-conf-file))
-     (require 'gnutls)
-     (add-to-list 'gnutls-trustfiles (expand-file-name (concat user-emacs-directory "/weechat/relay.cert")))
-     (set-face-background 'weechat-highlight-face "dark red")
-     (set-face-foreground 'weechat-highlight-face "light grey")
-
-     (tracking-mode)))
-
 (defun my-company-mode ()
   (require 'company)
   (require 'company-web-html))
@@ -228,7 +209,6 @@
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-
   (setq web-mode-content-alist
         '(("xml" . "*\\.config\\'"))))
   
@@ -259,15 +239,3 @@
 
 (require 'server)
 (unless (server-running-p) (server-start))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(browse-url-browser-function (quote browse-url-chromium)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
