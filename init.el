@@ -14,7 +14,7 @@
 (setq package-list
       '(
         ;; themes
-        gruvbox-theme
+        base16-theme
 
         ;; Evil
         evil
@@ -64,42 +64,6 @@
 (add-to-list 'load-path
              (expand-file-name "themes" user-emacs-directory))
 
-(mapc (lambda (map)
-        (define-key input-decode-map
-          (read-kbd-macro (cadr map))
-          (read-kbd-macro (car map))))
-      '(("<backtab>"    "ESC [ Z")
-
-        ("<S-up>"       "ESC [1;2A")
-        ("<S-down>"     "ESC [1;2B")
-        ("<S-right>"    "ESC [1;2C")
-        ("<S-left>"     "ESC [1;2D")
-
-        ("<M-up>"       "ESC [1;3A")
-        ("<M-down>"     "ESC [1;3B")
-        ("<M-right>"    "ESC [1;3C")
-        ("<M-left>"     "ESC [1;3D")
-
-        ("<M-S-up>"     "ESC [1;4A")
-        ("<M-S-down>"   "ESC [1;4B")
-        ("<M-S-right>"  "ESC [1;4C")
-        ("<M-S-left>"   "ESC [1;4D")
-
-        ("<C-up>"       "ESC [1;5A")
-        ("<C-down>"     "ESC [1;5B")
-        ("<C-right>"    "ESC [1;5C")
-        ("<C-left>"     "ESC [1;5D")
-
-        ("<C-S-up>"       "ESC [1;6A")
-        ("<C-S-down>"     "ESC [1;6B")
-        ("<C-S-right>"    "ESC [1;6C")
-        ("<C-S-left>"     "ESC [1;6D")
-
-        ("<C-prior>"    "ESC [5;5~")
-        ("<C-next>"     "ESC [6;5~")
-        ("<C-delete>"   "ESC [3;5~")
-        ))
-
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -118,8 +82,8 @@
   '(add-to-list 'company-backends 'company-omnisharp))
 (if (display-graphic-p)
     (set-face-attribute 'default nil
-                    :height (if (eq system-type 'windows-nt) 90 100)
-                    :font (if (eq system-type 'windows-nt) "Consolas" "Inconsolata")))
+                    :height 90
+                    :font (if (eq system-type 'windows-nt) "Consolas" "Source Code Pro")))
 
 (progn
   (ido-mode t)
@@ -146,7 +110,7 @@
         backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                  "backups")))))
 (defun my-emacs-theme ()
-  (load-theme 'gruvbox t))
+  (load-theme 'base16-default-dark t))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -160,14 +124,6 @@
 
 (defun my-buffer-move ()
   (windmove-default-keybindings)
-  (global-set-key (kbd "<C-S-up>")    'buf-move-up)
-  (global-set-key (kbd "<C-S-down>")  'buf-move-down)
-  (global-set-key (kbd "<C-S-left>")  'buf-move-left)
-  (global-set-key (kbd "<C-S-right>") 'buf-move-right)
-  (global-set-key (kbd "C-<left>")    'shrink-window-horizontally)
-  (global-set-key (kbd "C-<right>")   'enlarge-window-horizontally)
-  (global-set-key (kbd "C-<down>")    'shrink-window)
-  (global-set-key (kbd "C-<up>")      'enlarge-window)
   (global-set-key (kbd "C-h")         'buf-move-left)
   (global-set-key (kbd "C-l")         'buf-move-right)
   (global-set-key (kbd "C-j")         'buf-move-down)
