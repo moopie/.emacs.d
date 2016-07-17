@@ -33,14 +33,19 @@
         helm-swoop
 
         ;; languages
+
+        ;; c#
+        omnisharp
+
+        ;; web stuff
         company-web
         emmet-mode
-        omnisharp
         web-mode
         ac-html-bootstrap
         ac-html-csswatcher
 
-        ;; tern
+        ;; javascript
+        js2-mode
         tern
         company-tern
 
