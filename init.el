@@ -15,6 +15,7 @@
       '(
         ;; themes
         base16-theme
+        gruvbox-theme
 
         ;; Evil
         evil
@@ -28,50 +29,51 @@
         ;; Helm
         helm
         helm-ag
-        helm-company
         helm-projectile
         helm-swoop
 
         ;; languages
 
-        ;; c#
-        omnisharp
-
         ;; web stuff
-        company-web
         emmet-mode
         web-mode
         ac-html-bootstrap
         ac-html-csswatcher
 
-        ;; javascript
-        js2-mode
-        tern
-        company-tern
+        ;; editor
+        lsp-mode
+        dap-mode
+        treesit-auto
 
-        ;; typescript
-        tide
-        tss
+        ;; languages
+        csharp-mode
 
         ;; Utils
-        company
         anzu
         buffer-move
         highlight-symbol
         multi-term
-        flycheck
         smex
         ))
 
 (unless package-archive-contents
-  (package-refresh-contents))
+  (condition-case err
+      (package-refresh-contents)
+    (error
+     (message "Skipping package refresh: %s" (error-message-string err)))))
 
 (dolist (package package-list)
   (unless (package-installed-p package)
-    (package-install package)))
+    (condition-case err
+        (package-install package)
+      (error
+       (message "Skipping package %s: %s" package (error-message-string err))))))
 
 (add-to-list 'load-path
              (expand-file-name "themes" user-emacs-directory))
+
+(defvar my-frame-geometry-file
+  (expand-file-name "frame-geometry.el" user-emacs-directory))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -86,13 +88,39 @@
 
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-;;(setq omnisharp-server-executable-path "~/omnisharp-roslyn/scripts/Omnisharp.cmd")
-(eval-after-load 'company
-  '(add-to-list 'company-backends 'company-omnisharp))
+(defun my-available-font ()
+  (seq-find
+   (lambda (font)
+     (find-font (font-spec :name font)))
+   (if (eq system-type 'windows-nt)
+       '("Consolas" "Cascadia Mono" "Courier New")
+     '("Source Code Pro" "Iosevka" "JetBrains Mono" "Fira Code" "Menlo" "Monaco" "Monospace"))))
+
+(defun my-save-frame-geometry ()
+  (when (display-graphic-p)
+    (with-temp-file my-frame-geometry-file
+      (prin1
+       `((top . ,(frame-parameter nil 'top))
+         (left . ,(frame-parameter nil 'left))
+         (width . ,(frame-width))
+         (height . ,(frame-height)))
+       (current-buffer)))))
+
+(defun my-restore-frame-geometry ()
+  (when (and (display-graphic-p)
+             (file-exists-p my-frame-geometry-file))
+    (with-temp-buffer
+      (insert-file-contents my-frame-geometry-file)
+      (let ((params (read (current-buffer))))
+        (when params
+          (modify-frame-parameters nil params))))))
+
 (if (display-graphic-p)
-    (set-face-attribute 'default nil
-                    :height 90
-                    :font (if (eq system-type 'windows-nt) "Consolas" "Source Code Pro")))
+    (let ((font (my-available-font)))
+      (when font
+        (set-face-attribute 'default nil
+                            :height 120
+                            :font font))))
 
 (progn
   (ido-mode t)
@@ -119,7 +147,9 @@
         backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                  "backups")))))
 (defun my-emacs-theme ()
-  (load-theme 'base16-default-dark t))
+  (if (member 'gruvbox-dark-medium (custom-available-themes))
+      (load-theme 'gruvbox-dark-medium t)
+    (load-theme 'base16-default-dark t)))
 
 (defun my-hilight-symbol-hook ()
   (global-set-key [(control f3)] 'highlight-symbol)
@@ -144,11 +174,8 @@
   ;; This is your old M-x.
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
 
-(defun my-tern-mode ()
-  (tern-mode t))
-(add-hook 'js-mode-hook 'my-tern-mode)
-
 (defun my-evil-conf ()
+  (setq evil-disable-insert-state-bindings t)
   (evil-mode 1)
   (define-key evil-normal-state-map [escape] 'keyboard-quit)
   (define-key evil-visual-state-map [escape] 'keyboard-quit)
@@ -163,63 +190,53 @@
                 (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
                 (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
                 (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter))))
-
-
-(defun my-company-mode ()
-  (require 'company)
-  (require 'company-web-html))
-
 (defun my-web-mode ()
-  (require 'web-mode)
-  (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-  (setq web-mode-content-alist
-        '(("xml" . "*\\.config\\'"))))
-  
-;; Typescript stuff
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
+  (when (require 'web-mode nil t)
+    (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (setq web-mode-content-alist
+          '(("xml" . "*\\.config\\'")))))
 
-;; aligns annotation to the right hand side
-(setq company-tooltip-align-annotations t)
+(defun my-treesit-mode ()
+  (when (require 'treesit-auto nil t)
+    (setq treesit-auto-install 'prompt)
+    (global-treesit-auto-mode)
+    (setq major-mode-remap-alist
+          '((javascript-mode . js-ts-mode)
+            (js-mode . js-ts-mode)
+            (typescript-mode . typescript-ts-mode)
+            (tsx-mode . tsx-ts-mode)
+            (json-mode . json-ts-mode)
+            (css-mode . css-ts-mode)
+            (csharp-mode . csharp-ts-mode)))))
 
-;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
+(defun my-lsp-mode ()
+  (when (require 'lsp-mode nil t)
+    (setq lsp-keymap-prefix "C-c l"
+          lsp-completion-provider :none
+          lsp-prefer-flymake t
+          lsp-enable-snippet t
+          read-process-output-max (* 1024 1024))
+    (setq-default tab-always-indent 'complete)
+    (dolist (hook '(js-ts-mode-hook
+                    typescript-ts-mode-hook
+                    tsx-ts-mode-hook
+                    csharp-ts-mode-hook))
+      (add-hook hook #'lsp-deferred))))
 
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-
-;; format options
-(setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
-
-(require 'tss)
-
-;; Key binding
-;(setq tss-popup-help-key "C-:")
-;(setq tss-jump-to-definition-key "C->")
-;(setq tss-implement-definition-key "C-c i")
-
-;; Make config suit for you. About the config item, eval the following sexp.
-;; (customize-group "tss")
-
-;; Do setting recommemded configuration
-(tss-config-default)
+(defun my-dap-mode ()
+  (when (require 'dap-mode nil t)
+    (dap-auto-configure-mode 1)
+    (require 'dap-node nil t)
+    (require 'dap-netcore nil t)))
 
 (defun my-after-init-hook ()
   (my-web-mode)
-  (my-company-mode)
+  (my-treesit-mode)
+  (my-lsp-mode)
+  (my-dap-mode)
   (my-emacs-theme)
   (projectile-global-mode)
-  (global-company-mode)
-  (global-flycheck-mode)
   (my-hilight-symbol-hook)
   (my-anzu-mode)
   (my-buffer-move)
@@ -231,11 +248,21 @@
 (setq projectile-require-project-root nil
       projectile-enable-caching t)
 
-(defun my-csharp-hooks ()
-  (omnisharp-mode))
-
 (add-hook 'after-init-hook 'my-after-init-hook)
-(add-hook 'csharp-mode-hook 'my-csharp-hooks)
+(add-hook 'after-init-hook 'my-restore-frame-geometry)
+(add-hook 'kill-emacs-hook 'my-save-frame-geometry)
 
 (require 'server)
 (unless (server-running-p) (server-start))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
